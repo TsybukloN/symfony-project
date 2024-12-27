@@ -1,0 +1,11 @@
+doctrine_mongodb:
+    connections:
+        default:
+            server: '%env(MONGODB_URL)%'
+            options: {}
+
+    document_managers:
+        default:
+            connection: default
+            databases:
+                default: true

@@ -1,0 +1,31 @@
+security:
+    firewalls:
+        public:
+            pattern: ^/(css|js|images|favicon.ico)
+            security: false
+
+        main:
+            pattern: ^/
+            form_login:
+                login_path: login
+                check_path: login
+                default_target_path: home
+            logout:
+                path: logout
+                target: home
+
+            security: true
+
+    access_control:
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/profile, roles: ROLE_USER }
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    password_hashers:
+        App\Entity\User:
+            algorithm: bcrypt

@@ -3,3 +3,30 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+app_login:
+    path: /login
+    controller: App\Controller\SecurityController::login
+
+home:
+    path: /
+    controller: App\Controller\HomeController::index
+
+profile:
+    path: /profile
+    controller: App\Controller\ProfileController::show
+admin:
+    path: /admin
+    controller: App\Controller\AdminController::dashboard
+
+logout:
+    path: /logout
+    controller: App\Controller\SecurityController::logout
+
+login:
+    path: /login
+    controller: App\Controller\SecurityController::login
+
+app_register:
+    path: /register
+    controller: App\Controller\SecurityController::register
