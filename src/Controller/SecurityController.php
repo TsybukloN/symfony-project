@@ -15,6 +15,7 @@ class SecurityController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
+
         $lastUsername = $authenticationUtils->getLastUsername();
 
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -29,15 +30,16 @@ class SecurityController extends AbstractController
     public function register(Request $request, RegistrationService $registrationService): Response
     {
         if ($request->isMethod('POST')) {
+            $username = $request->request->get('username');
             $email = $request->request->get('email');
             $plainPassword = $request->request->get('password');
 
-            if (empty($email) || empty($plainPassword)) {
+            if (empty($username) || empty($email) || empty($plainPassword)) {
                 $this->addFlash('error', 'Email and password are required.');
                 return $this->redirectToRoute('app_register');
             }
 
-            $registrationService->register($email, $plainPassword);
+            $registrationService->register($username, $email, $plainPassword);
 
             $this->addFlash('success', 'Registration successful!');
             return $this->redirectToRoute('app_login');
@@ -49,6 +51,6 @@ class SecurityController extends AbstractController
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void
     {
-        // Symfony автоматически перехватывает маршрут logout
+
     }
 }

@@ -23,10 +23,10 @@ logout:
     path: /logout
     controller: App\Controller\SecurityController::logout
 
-login:
-    path: /login
-    controller: App\Controller\SecurityController::login
-
 app_register:
     path: /register
     controller: App\Controller\SecurityController::register
+
+app_dashboard:
+    path: /dashboard
+    controller: App\Controller\DashboardController::dashboard

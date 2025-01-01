@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add Firmware{% endblock %}
+
+{% block body %}
+    <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+        <div class="card shadow-sm" style="width: 600px;">
+            <div class="container mt-5">
+                <h1 class="text-center mb-4">Create new Project</h1>
+                <form method="post" action="{{ path('project_add') }}">
+                    <div class="mb-3">
+                        <label for="inputName" class="form-label">Name</label>
+                        <input type="text" id="inputName" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputDevice" class="form-label">Device</label>
+                        <select id="inputDevice" name="device" class="form-control" required>
+                            <option value="">Select a device</option>
+                            {% for device in devices %}
+                                <option value="{{ device.id }}">{{ device.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputVersion" class="form-label">Description</label>
+                        <input type="text" id="inputVersion" name="description" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Project</button>
+                </form>
+                <p class="text-center mt-3">
+                    <a href="{{ path('project_list') }}">Back to list</a>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -20,10 +20,12 @@ class RegistrationService
         $this->entityManager = $entityManager;
     }
 
-    public function register(string $email, string $plainPassword): Users
+    public function register(string $username, string $email, string $plainPassword): Users
     {
         $user = new Users();
+        $user->setUsername($username);
         $user->setEmail($email);
+        $user->setRoles(['ROLE_USER']);
         $user->setPassword(
             $this->passwordHasher->hashPassword($user, $plainPassword)
         );

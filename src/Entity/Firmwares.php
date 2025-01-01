@@ -13,8 +13,9 @@ class Firmwares
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    #[ORM\ManyToOne(targetEntity: Firmwares::class)]
+    #[ORM\JoinColumn(name: "firmware_id", referencedColumnName: "id")]
+    private ?Firmwares $firmware_id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $file_path = null;
@@ -25,30 +26,20 @@ class Firmwares
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $uploaded_at = null;
 
-    #[ORM\ManyToOne(targetEntity: Users::class)]
-    #[ORM\JoinColumn(name: "uploaded_by", referencedColumnName: "id")]
-    private ?Users $uploadedBy = null;
-
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getname(): ?string
+    public function getFirmwareId(): ?Firmwares
     {
-        return $this->name;
+        return $this->firmware_id;
     }
 
-    public function setname(string $name): static
+    public function setFirmwareId(?Firmwares $firmware_id): static
     {
-        $this->name = $name;
-
+        $this->firmware_id = $firmware_id;
         return $this;
-    }
-
-    public function getFilePath(): ?string
-    {
-        return $this->file_path;
     }
 
     public function setFilePath(string $file_path): static
@@ -79,17 +70,6 @@ class Firmwares
     {
         $this->uploaded_at = $uploaded_at;
 
-        return $this;
-    }
-
-    public function getUploadedBy(): ?Users
-    {
-        return $this->uploadedBy;
-    }
-
-    public function setUploadedBy(?Users $uploadedBy): static
-    {
-        $this->uploadedBy = $uploadedBy;
         return $this;
     }
 }

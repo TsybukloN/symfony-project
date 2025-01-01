@@ -1,87 +1,29 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Dashboard{% endblock %}
+
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">Dashboard</h1>
+    <h1>Dashboard</h1>
 
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card shadow">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Total Firmwares</h5>
-                        <p class="card-text display-4">{{ firmware_count }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Total Devices</h5>
-                        <p class="card-text display-4">{{ device_count }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Total Users</h5>
-                        <p class="card-text display-4">{{ user_count }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <h2>Firmware Statistics</h2>
+    <p>Total Firmwares: {{ firmware_count }}</p>
 
-        <h2 class="mt-5">Recent Firmwares</h2>
-        <div class="row mt-4">
-            {% for firmware in recent_firmwares %}
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow">
-                        <img src="{{ firmware.imagePath ? asset(firmware.imagePath) : asset('images/default-firmware.png') }}"
-                             class="card-img-top"
-                             alt="{{ firmware.name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ firmware.name }}</h5>
-                            <p class="card-text">
-                                Version: {{ firmware.version }} <br>
-                                Uploaded: {{ firmware.uploadedAt|date('Y-m-d') }}
-                            </p>
-                            <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#firmwareModal{{ firmware.id }}">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
+    <h3>Recent Firmwares</h3>
+    <ul>
+        {% for firmware in firmwares %}
+            <li>{{ firmware.name }} (Uploaded at: {{ firmware.uploadedAt|date('Y-m-d H:i:s') }})</li>
+        {% endfor %}
+    </ul>
 
-                {# Modal for firmware details #}
-                <div class="modal fade" id="firmwareModal{{ firmware.id }}" tabindex="-1" aria-labelledby="firmwareModalLabel{{ firmware.id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="firmwareModalLabel{{ firmware.id }}">{{ firmware.name }} Details</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <img src="{{ firmware.imagePath ? asset(firmware.imagePath) : asset('images/default-firmware.png') }}"
-                                             class="img-fluid rounded shadow"
-                                             alt="{{ firmware.name }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h4>{{ firmware.name }}</h4>
-                                        <p><strong>Version:</strong> {{ firmware.version }}</p>
-                                        <p><strong>Uploaded:</strong> {{ firmware.uploadedAt|date('Y-m-d H:i') }}</p>
-                                        <p><strong>Description:</strong> {{ firmware.description }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+    <div class="pagination">
+        {% if current_page > 1 %}
+            <a href="{{ path('app_login', {'page': current_page - 1}) }}">Previous</a>
+        {% endif %}
+
+        <span>Page {{ current_page }} of {{ total_pages }}</span>
+
+        {% if current_page < total_pages %}
+            <a href="{{ path('app_login', {'page': current_page + 1}) }}">Next</a>
+        {% endif %}
     </div>
 {% endblock %}

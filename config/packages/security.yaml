@@ -7,25 +7,27 @@ security:
         main:
             pattern: ^/
             form_login:
-                login_path: login
-                check_path: login
-                default_target_path: home
+                login_path: app_login
+                check_path: app_login
+                default_target_path: app_dashboard
             logout:
-                path: logout
+                path: app_logout
                 target: home
 
             security: true
 
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/firmwares, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/firmwares/add, roles: IS_AUTHENTICATED_FULLY }
 
     providers:
         app_user_provider:
             entity:
-                class: App\Entity\User
+                class: App\Entity\Users
                 property: email
 
     password_hashers:
-        App\Entity\User:
+        App\Entity\Users:
             algorithm: bcrypt
+            cost: 12
