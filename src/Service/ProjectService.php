@@ -33,7 +33,7 @@ class ProjectService
         $project = new Project();
         $project->setName($name);
         $project->setDescription($description);
-        $project->setDeviceId($device_id);
+        $project->setDevice($device_id);
         $project->setUploadedBy($request->getSession()->get('user') instanceof Users ? $request->getSession()->get('user') : null);
 
         $this->entityManager->persist($project);

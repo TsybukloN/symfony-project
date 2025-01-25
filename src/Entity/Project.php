@@ -21,11 +21,11 @@ class Project
     private ?string $description = null;
 
     #[ORM\ManyToOne(targetEntity: Devices::class)]
-    #[ORM\JoinColumn(name: "device_id", referencedColumnName: "id")]
-    private ?Devices $device_id = null;
+    #[ORM\JoinColumn(name: "device_id", referencedColumnName: "id", nullable: true)]
+    private ?Devices $device = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class)]
-    #[ORM\JoinColumn(name: "uploaded_by", referencedColumnName: "id")]
+    #[ORM\JoinColumn(name: "uploaded_by", referencedColumnName: "id", nullable: true)]
     private ?Users $uploadedBy = null;
 
     public function getId(): ?int
@@ -57,14 +57,14 @@ class Project
         return $this;
     }
 
-    public function getDeviceId(): ?Devices
+    public function getDevice(): ?Devices
     {
-        return $this->device_id;
+        return $this->device;
     }
 
-    public function setDeviceId(?Devices $device_id): static
+    public function setDevice(?Devices $device): static
     {
-        $this->device_id = $device_id;
+        $this->device = $device;
 
         return $this;
     }

@@ -8,17 +8,27 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\ProjectService;
 use App\Repository\DevicesRepository;
+use App\Repository\ProjectRepository;
 
 
 class ProjectController extends AbstractController
 {
     #[Route('/projects', name: 'project_list')]
-    public function list(ProjectService $projectService): Response
+    public function list(ProjectRepository $repository, Request $request): Response
     {
-        $projects = $projectService->getPaginatedProjects(1);
+        $perPage = 10;
+        $currentPage = $request->query->getInt('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+
+        $totalProjects = $repository->count([]);
+        $totalPages = (int) ceil($totalProjects / $perPage);
+
+        $projects = $repository->findBy([], ['name' => 'ASC'], $perPage, $offset);
 
         return $this->render('projects/list.html.twig', [
             'projects' => $projects,
+            'current_page' => $currentPage,
+            'total_pages' => $totalPages,
         ]);
     }
 

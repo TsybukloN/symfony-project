@@ -30,3 +30,11 @@ app_register:
 app_dashboard:
     path: /dashboard
     controller: App\Controller\DashboardController::dashboard
+    
+project_list:
+    path: /projects
+    controller: App\Controller\ProjectController::list
+    
+project_add:
+    path: /projects/add
+    controller: App\Controller\ProjectController::add

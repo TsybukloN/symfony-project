@@ -9,11 +9,22 @@
     <p>Total Firmwares: {{ firmware_count }}</p>
 
     <h3>Recent Firmwares</h3>
-    <ul>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Uploaded At</th>
+        </tr>
+        </thead>
+        <tbody>
         {% for firmware in firmwares %}
-            <li>{{ firmware.name }} (Uploaded at: {{ firmware.uploadedAt|date('Y-m-d H:i:s') }})</li>
+            <tr>
+                <td>{{ firmware.name }}</td>
+                <td>{{ firmware.uploadedAt|date('Y-m-d H:i:s') }}</td>
+            </tr>
         {% endfor %}
-    </ul>
+        </tbody>
+    </table>
 
     <div class="pagination">
         {% if current_page > 1 %}

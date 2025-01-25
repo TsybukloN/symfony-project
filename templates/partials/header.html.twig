@@ -3,7 +3,7 @@
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ path('home') }}">Home</a>
+                    <a class="nav-link" href="{{ path('app_dashboard') }}">Dashboard</a>
                 </li>
                 {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                     <li class="nav-item">
@@ -14,6 +14,9 @@
                             <a class="nav-link" href="{{ path('admin') }}">Admin Panel</a>
                         </li>
                     {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('project_list') }}">My projects</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('logout') }}">Logout</a>
                     </li>
