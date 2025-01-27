@@ -1,5 +1,7 @@
 <?php
 
+// src/Controller/ProjectController.php
+
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -8,43 +10,50 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\ProjectService;
 use App\Repository\DevicesRepository;
-use App\Repository\ProjectRepository;
-
+use App\Entity\Projects;
 
 class ProjectController extends AbstractController
 {
-    #[Route('/projects', name: 'project_list')]
-    public function list(ProjectRepository $repository, Request $request): Response
+    private ProjectService $projectService;
+
+    public function __construct(ProjectService $projectService)
     {
-        $perPage = 10;
-        $currentPage = $request->query->getInt('page', 1);
-        $offset = ($currentPage - 1) * $perPage;
+        $this->projectService = $projectService;
+    }
 
-        $totalProjects = $repository->count([]);
-        $totalPages = (int) ceil($totalProjects / $perPage);
+    #[Route('/projects/{page<\d+>}', name: 'project_list')]
+    public function list(Request $request): Response
+    {
+        $page = $request->query->getInt('page', 1);
+        $perPage = $request->query->getInt('perPage', 50);
 
-        $projects = $repository->findBy([], ['name' => 'ASC'], $perPage, $offset);
+        // Get paginated projects and total project count
+        $projects = $this->projectService->getPaginatedProjects($page, $perPage);
+        $totalProjects = $this->projectService->getTotalProjectsCount();
+
+        // Calculate number of pages
+        $pages = (int) ceil($totalProjects / $perPage);
 
         return $this->render('projects/list.html.twig', [
             'projects' => $projects,
-            'current_page' => $currentPage,
-            'total_pages' => $totalPages,
+            'page' => $page,
+            'pages' => $pages,
         ]);
     }
 
     #[Route('/projects/add', name: 'project_add')]
-    public function add(Request $request, ProjectService $projectService, DevicesRepository $deviceRepository): Response
+    public function add(Request $request, DevicesRepository $deviceRepository): Response
     {
-        $devices = $deviceRepository->findAllDevices();
+        $devices = $deviceRepository->findAll();
 
-        $isAdded = $projectService->handleAddProject($request);
+        $isAdded = $this->projectService->handleAddProject($request);
 
         if ($isAdded) {
-            $this->addFlash('success', 'Firmware added successfully.');
+            $this->addFlash('success', 'Project added successfully.');
             return $this->redirectToRoute('project_list');
         }
 
-        $this->addFlash('error', 'There was an error adding the firmware.');
+        $this->addFlash('error', 'There was an error adding the project.');
 
         return $this->render('projects/form.html.twig', [
             'devices' => $devices,
@@ -58,7 +67,7 @@ class ProjectController extends AbstractController
 
         if ($isDeleted) {
             $this->addFlash('success', 'Project deleted successfully.');
-            return $this->redirectToRoute('projects_list');
+            return $this->redirectToRoute('project_list');
         }
 
         $this->addFlash('error', 'There was an error deleting the project.');
@@ -69,15 +78,15 @@ class ProjectController extends AbstractController
     #[Route('/projects/edit/{id}', name: 'project_edit')]
     public function edit(int $id, Request $request, ProjectService $projectService): Response
     {
-        $isEdited = $projectService->handleEditProject($id, $request);
+        $isDeleted = $projectService->handleEditProject($id, $request);
 
-        if ($isEdited) {
+        if ($isDeleted) {
             $this->addFlash('success', 'Project edited successfully.');
             return $this->redirectToRoute('project_list');
         }
 
         $this->addFlash('error', 'There was an error editing the project.');
 
-        return $this->render('projects/form.html.twig');
+        return $this->redirectToRoute('project_list');
     }
 }

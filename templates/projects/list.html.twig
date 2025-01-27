@@ -30,14 +30,12 @@
             </tbody>
         </table>
 
-        <div class="pagination">
-            {% if current_page > 1 %}
-                <a href="{{ path('project_list', {'page': current_page - 1}) }}" class="btn btn-secondary">Previous</a>
-            {% endif %}
-            <span>Page {{ current_page }} of {{ total_pages }}</span>
-            {% if current_page < total_pages %}
-                <a href="{{ path('project_list', {'page': current_page + 1}) }}" class="btn btn-secondary">Next</a>
-            {% endif %}
-        </div>
+        {# Pagination controls #}
+            <div>
+                <a href="?page={{ page - 1 }}" {% if page <= 1 %}class="disabled"{% endif %}>Previous</a>
+                <span>Page {{ page }} of {{ pages }}</span>
+                <a href="?page={{ page + 1 }}" {% if page >= pages %}class="disabled"{% endif %}>Next</a>
+            </div>
+
     </div>
 {% endblock %}

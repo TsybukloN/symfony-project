@@ -2,12 +2,13 @@
 
 namespace App\Service;
 
-use App\Entity\Project;
+use App\Entity\Projects;
 use App\Repository\ProjectRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Users;
-
+use App\Entity\Devices;
+use Psr\Log\LoggerInterface;
 
 class ProjectService
 {
@@ -26,14 +27,21 @@ class ProjectService
         $description = $request->request->get('description');
         $device_id = $request->request->get('device_id');
 
-        if (!$name || !$description || $device_id) {
+        if (!$name || !$description || !$device_id) {
             return false;
         }
 
-        $project = new Project();
+        $device = $this->entityManager->getRepository(Devices::class)->find($device_id);
+        if (!$device) {
+            return false;
+        }
+
+        print_r($device);
+
+        $project = new Projects();
         $project->setName($name);
         $project->setDescription($description);
-        $project->setDevice($device_id);
+        $project->setDevice($device);
         $project->setUploadedBy($request->getSession()->get('user') instanceof Users ? $request->getSession()->get('user') : null);
 
         $this->entityManager->persist($project);
@@ -44,7 +52,7 @@ class ProjectService
 
     public function handleEditProject(int $id, Request $request): bool
     {
-        $project = $this->entityManager->getRepository(Project::class)->find($id);
+        $project = $this->entityManager->getRepository(Projects::class)->find($id);
 
         if (!$project) {
             return false;
@@ -61,7 +69,12 @@ class ProjectService
             $project->setDescription($description);
         }
         if ($device_id) {
-            $project->setDeviceId($device_id);
+            $device = $this->entityManager->getRepository(Devices::class)->find($device_id);
+            if ($device) {
+                $project->setDevice($device);
+            } else {
+                return false;
+            }
         }
 
         try {
@@ -74,7 +87,7 @@ class ProjectService
 
     public function handleDeleteProject(int $id): bool
     {
-        $project = $this->entityManager->getRepository(Project::class)->find($id);
+        $project = $this->entityManager->getRepository(Projects::class)->find($id);
 
         if (!$project) {
             return false;
@@ -91,8 +104,16 @@ class ProjectService
 
     public function getPaginatedProjects(int $page = 1, int $perPage = 50): array
     {
+        $page = max(1, $page);
+        $perPage = max(1, $perPage);
+
         $offset = ($page - 1) * $perPage;
-        return $this->projectRepository->findBy([], [], $perPage, $offset);
+
+        try {
+            return $this->projectRepository->findBy([], ['id' => 'ASC'], $perPage, $offset);
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
     public function getTotalProjectsCount(): int

@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project
+class Projects
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -17,16 +17,19 @@ class Project
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $description = null;
-
     #[ORM\ManyToOne(targetEntity: Devices::class)]
-    #[ORM\JoinColumn(name: "device_id", referencedColumnName: "id", nullable: true)]
+    #[ORM\JoinColumn(name: "device_id", referencedColumnName: "id")]
     private ?Devices $device = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class)]
-    #[ORM\JoinColumn(name: "uploaded_by", referencedColumnName: "id", nullable: true)]
+    #[ORM\JoinColumn(name: "uploaded_by", referencedColumnName: "id")]
     private ?Users $uploadedBy = null;
+
+    #[ORM\Column(type: "json")]
+    private array $firmware_ids = [];
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
 
     public function getId(): ?int
     {
@@ -65,6 +68,18 @@ class Project
     public function setDevice(?Devices $device): static
     {
         $this->device = $device;
+
+        return $this;
+    }
+
+    public function getFirmwareIds(): array
+    {
+        return $this->firmware_ids;
+    }
+
+    public function setFirmwareIds(array $firmware_ids): static
+    {
+        $this->firmware_ids = $firmware_ids;
 
         return $this;
     }

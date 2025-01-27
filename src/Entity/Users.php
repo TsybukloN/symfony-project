@@ -15,11 +15,14 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $username = null;
-
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
     private ?string $email = null;
+
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    private ?string $username = null;
 
     #[ORM\Column(type: "json")]
     private array $roles = [];
@@ -58,18 +61,18 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setRoles(array $roles): static
     {
-        $this->roles = $roles;
+        $this->roles = array_unique($roles);
         return $this;
     }
 
     public function getRoles(): array
     {
-        $roles = $this->roles;
-        if (!in_array('ROLE_USER', $roles)) {
-            $roles[] = 'ROLE_USER';
+        if (!in_array('ROLE_USER', $this->roles, true)) {
+            $this->roles[] = 'ROLE_USER';
         }
-        return array_unique($roles);
+        return array_unique($this->roles);
     }
+
 
     public function addRole(string $role): static
     {
@@ -81,15 +84,16 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setAdmin(): static
     {
-        $this->roles[] = 'ROLE_ADMIN';
+        $this->addRole('ROLE_ADMIN');
         return $this;
     }
 
     public function setUser(): static
     {
-        $this->roles[] = 'ROLE_USER';
+        $this->addRole('ROLE_USER');
         return $this;
     }
+
 
     public function getPassword(): ?string
     {

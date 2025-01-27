@@ -17,10 +17,6 @@ class Uploads
     #[ORM\JoinColumn(name: "firmware_id", referencedColumnName: "id")]
     private ?Firmwares $firmware_id = null;
 
-    #[ORM\ManyToOne(targetEntity: Devices::class)]
-    #[ORM\JoinColumn(name: "device_id", referencedColumnName: "id")]
-    private ?Devices $device_id = null;
-
     #[ORM\ManyToOne(targetEntity: Users::class)]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
     private ?Users $user_id = null;
@@ -41,18 +37,6 @@ class Uploads
     public function setFirmwareId(int $firmware_id): static
     {
         $this->firmware_id = $firmware_id;
-
-        return $this;
-    }
-
-    public function getDeviceId(): ?int
-    {
-        return $this->device_id;
-    }
-
-    public function setDeviceId(int $device_id): static
-    {
-        $this->device_id = $device_id;
 
         return $this;
     }

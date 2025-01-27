@@ -19,7 +19,7 @@
         <tbody>
         {% for firmware in firmwares %}
             <tr>
-                <td>{{ firmware.name }}</td>
+                <td>{{ firmware.version }}</td>
                 <td>{{ firmware.uploadedAt|date('Y-m-d H:i:s') }}</td>
             </tr>
         {% endfor %}

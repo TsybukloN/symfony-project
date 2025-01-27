@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\FirmwaresRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FirmwaresRepository::class)]
 class Firmwares
@@ -13,17 +14,18 @@ class Firmwares
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Firmwares::class)]
-    #[ORM\JoinColumn(name: "firmware_id", referencedColumnName: "id")]
-    private ?Firmwares $firmware_id = null;
+    #[ORM\Column(type: "integer")]
+    private ?int $firmware_file_id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $file_path = null;
+    #[ORM\Column(type: "json", nullable: true)]
+    private array $media_file_ids = [];
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 10)]
+    #[Assert\NotBlank]
+    #[Assert\Regex(pattern: "/^\d+\.\d+\.\d+$/", message: "Invalid version format.")]
     private ?string $version = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column()]
     private ?\DateTimeImmutable $uploaded_at = null;
 
     public function getId(): ?int
@@ -31,21 +33,14 @@ class Firmwares
         return $this->id;
     }
 
-    public function getFirmwareId(): ?Firmwares
+    public function getFirmwareFileId(): ?int
     {
-        return $this->firmware_id;
+        return $this->firmware_file_id;  // Исправлено
     }
 
-    public function setFirmwareId(?Firmwares $firmware_id): static
+    public function setFirmwareFileId(?int $firmware_file_id): static
     {
-        $this->firmware_id = $firmware_id;
-        return $this;
-    }
-
-    public function setFilePath(string $file_path): static
-    {
-        $this->file_path = $file_path;
-
+        $this->firmware_file_id = $firmware_file_id;  // Исправлено
         return $this;
     }
 
@@ -57,7 +52,6 @@ class Firmwares
     public function setVersion(string $version): static
     {
         $this->version = $version;
-
         return $this;
     }
 
@@ -69,7 +63,17 @@ class Firmwares
     public function setUploadedAt(?\DateTimeImmutable $uploaded_at): static
     {
         $this->uploaded_at = $uploaded_at;
+        return $this;
+    }
 
+    public function getMediaFileIds(): array
+    {
+        return $this->media_file_ids;
+    }
+
+    public function setMediaFileIds(array $media_file_ids): static
+    {
+        $this->media_file_ids = $media_file_ids;
         return $this;
     }
 }
