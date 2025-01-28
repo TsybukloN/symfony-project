@@ -4,66 +4,47 @@ namespace App\Service;
 
 use App\Entity\Firmwares;
 use App\Repository\FirmwaresRepository;
+use App\Repository\ProjectRepository;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Users;
 
 class FirmwareService
 {
-    private Connection $connection;
+    private EntityManagerInterface $entityManager;
+    private ProjectRepository $projectRepository;
     private FirmwaresRepository $firmwareRepository;
 
-    public function __construct(Connection $connection, FirmwaresRepository $firmwareRepository)
+    public function __construct(EntityManagerInterface $entityManager, FirmwaresRepository $firmwareRepository, ProjectRepository $projectRepository)
     {
-        $this->connection = $connection;
+        $this->entityManager = $entityManager;
         $this->firmwareRepository = $firmwareRepository;
+        $this->projectRepository = $projectRepository;
     }
 
     public function handleAddFirmware(Request $request): bool
     {
-        $name = $request->request->get('name');
-        $filePath = $request->request->get('file_path');
         $version = $request->request->get('version');
 
-        if (!$name || !$filePath || !$version) {
+        if ($version === null) {
             return false;
         }
 
         $firmware = new Firmwares();
-        $firmware->setName($name);
-        $firmware->setFilePath($filePath);
-        $firmware->setVersion($version);
-        $firmware->setUploadedAt(new \DateTimeImmutable());
-        $firmware->setUploadedBy($request->getSession()->get('user') instanceof Users ? $request->getSession()->get('user') : null);
+        $firmware->setVersion($version)
+            ->setUploadedAt(new \DateTimeImmutable())
+            ->setFirmwareFileId(-1);
 
-        $this->save($firmware);
+        $this->entityManager->persist($firmware);
+        $this->entityManager->flush();
+
+        # TODO : Add to project
 
         return true;
     }
 
-    public function save(Firmwares $firmware): void
-    {
-        $qb = $this->connection->createQueryBuilder();
-
-        $qb->insert('firmwares')
-            ->values([
-                'name' => ':name',
-                'file_path' => ':file_path',
-                'version' => ':version',
-                'uploaded_at' => ':uploaded_at',
-                'uploaded_by' => ':uploaded_by',
-            ])
-            ->setParameters([
-                'name' => $firmware->getName(),
-                'file_path' => $firmware->getFilePath(),
-                'version' => $firmware->getVersion(),
-                'uploaded_at' => $firmware->getUploadedAt()?->format('Y-m-d H:i:s'),
-                'uploaded_by' => $firmware->getUploadedBy()?->getId(),
-            ])
-            ->executeStatement();
-    }
-
-    public function delete(Firmwares $firmware): void
+    /*public function delete(Firmwares $firmware): void
     {
         $qb = $this->connection->createQueryBuilder();
 
@@ -91,16 +72,5 @@ class FirmwareService
                 'id' => $firmware->getId(),
             ])
             ->executeStatement();
-    }
-
-    public function getPaginatedFirmwares(int $page = 1, int $perPage = 50): array
-    {
-        $offset = ($page - 1) * $perPage;
-        return $this->firmwareRepository->findBy([], [], $perPage, $offset);
-    }
-
-    public function getTotalFirmwareCount(): int
-    {
-        return $this->firmwareRepository->count([]);
-    }
+    }*/
 }

@@ -1,38 +1,45 @@
 <?php
 
-// src/Controller/ProjectController.php
-
 namespace App\Controller;
 
+use App\Entity\Users;
+use App\Repository\FirmwaresRepository;
+use App\Repository\ProjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\ProjectService;
 use App\Repository\DevicesRepository;
-use App\Entity\Projects;
 
 class ProjectController extends AbstractController
 {
     private ProjectService $projectService;
+    private ProjectRepository $projectRepository;
 
-    public function __construct(ProjectService $projectService)
+    public function __construct(ProjectService $projectService, ProjectRepository $projectRepository)
     {
         $this->projectService = $projectService;
+        $this->projectRepository = $projectRepository;
     }
 
     #[Route('/projects/{page<\d+>}', name: 'project_list')]
-    public function list(Request $request): Response
+    public function list(Request $request, FirmwaresRepository $firmwaresRepository): Response
     {
         $page = $request->query->getInt('page', 1);
         $perPage = $request->query->getInt('perPage', 50);
 
-        // Get paginated projects and total project count
         $projects = $this->projectService->getPaginatedProjects($page, $perPage);
         $totalProjects = $this->projectService->getTotalProjectsCount();
 
-        // Calculate number of pages
         $pages = (int) ceil($totalProjects / $perPage);
+
+        foreach ($projects as $project) {
+            $firmwareIds = $project->getFirmwareIds();
+            $firmwares = $firmwaresRepository->findBy(['id' => $firmwareIds]);
+
+            $project->firmwares = $firmwares;
+        }
 
         return $this->render('projects/list.html.twig', [
             'projects' => $projects,
@@ -41,12 +48,17 @@ class ProjectController extends AbstractController
         ]);
     }
 
-    #[Route('/projects/add', name: 'project_add')]
+    #[Route('/projects/add', name: 'project_add', methods: ['GET', 'POST'])]
     public function add(Request $request, DevicesRepository $deviceRepository): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof Users) {
+            return $this->redirectToRoute('app_login');
+        }
+
         $devices = $deviceRepository->findAll();
 
-        $isAdded = $this->projectService->handleAddProject($request);
+        $isAdded = $this->projectService->handleAddProject($request, $user);
 
         if ($isAdded) {
             $this->addFlash('success', 'Project added successfully.');
@@ -60,32 +72,45 @@ class ProjectController extends AbstractController
         ]);
     }
 
-    #[Route('/projects/delete/{id}', name: 'project_delete')]
-    public function delete(int $id, ProjectService $projectService): Response
+    #[Route('/projects/edit/{id}', name: 'project_edit', methods: ['GET', 'POST'])]
+    public function edit(int $id, Request $request, DevicesRepository $deviceRepository): Response
     {
-        $isDeleted = $projectService->handleDeleteProject($id);
-
-        if ($isDeleted) {
-            $this->addFlash('success', 'Project deleted successfully.');
-            return $this->redirectToRoute('project_list');
+        $user = $this->getUser();
+        if (!$user instanceof Users) {
+            return $this->redirectToRoute('app_login');
         }
 
-        $this->addFlash('error', 'There was an error deleting the project.');
+        $devices = $deviceRepository->findAll();
+        $project = $this->projectRepository->find($id);
+
+        if (!$project) {
+            throw $this->createNotFoundException('Project not found.');
+        }
+
+        $isEdited = $this->projectService->handleEditProject($id, $request);
+
+        if ($isEdited) {
+            $this->addFlash('success', 'Project edited successfully.');
+
+            return $this->render('projects/form.html.twig', [
+                'devices' => $devices,
+                'project' => $project,
+            ]);
+        }
 
         return $this->redirectToRoute('project_list');
     }
 
-    #[Route('/projects/edit/{id}', name: 'project_edit')]
-    public function edit(int $id, Request $request, ProjectService $projectService): Response
+    #[Route('/projects/delete/{id}', name: 'project_delete', methods: ['DELETE'])]
+    public function delete(int $id): Response
     {
-        $isDeleted = $projectService->handleEditProject($id, $request);
+        $isDeleted = $this->projectService->handleDeleteProject($id);
 
         if ($isDeleted) {
-            $this->addFlash('success', 'Project edited successfully.');
-            return $this->redirectToRoute('project_list');
+            $this->addFlash('success', 'Project deleted successfully.');
+        } else {
+            $this->addFlash('error', 'There was an error deleting the project.');
         }
-
-        $this->addFlash('error', 'There was an error editing the project.');
 
         return $this->redirectToRoute('project_list');
     }

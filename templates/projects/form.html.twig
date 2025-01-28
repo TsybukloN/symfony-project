@@ -1,36 +1,56 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Add Firmware{% endblock %}
+{% block title %}{{ project is defined ? 'Edit Project' : 'Add Project' }}{% endblock %}
 
 {% block body %}
-    <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
-        <div class="card shadow-sm" style="width: 600px;">
-            <div class="container mt-5">
-                <h1 class="text-center mb-4">Create new Project</h1>
-                <form method="post" action="{{ path('project_add') }}">
-                    <div class="mb-3">
-                        <label for="inputName" class="form-label">Name</label>
-                        <input type="text" id="inputName" name="name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputDevice" class="form-label">Device</label>
-                        <select id="inputDevice" name="device" class="form-control" required>
-                            <option value="">Select a device</option>
-                            {% for device in devices %}
-                                <option value="{{ device.id }}">{{ device.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inputVersion" class="form-label">Description</label>
-                        <input type="text" id="inputVersion" name="description" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Add Project</button>
-                </form>
-                <p class="text-center mt-3">
-                    <a href="{{ path('project_list') }}">Back to list</a>
-                </p>
-            </div>
-        </div>
-    </div>
+  <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+      <div class="card shadow-sm" style="width: 600px;">
+          <div class="container mt-5">
+              <h1 class="text-center mb-4">{{ project is defined ? 'Edit Project' : 'Create New Project' }}</h1>
+              <form method="post" action="{{ project is defined ? path('project_edit', { id: project.id }) : path('project_add') }}">
+                  <div class="mb-3">
+                      <label for="inputName" class="form-label">Name</label>
+                      <input
+                          type="text"
+                          id="inputName"
+                          name="name"
+                          class="form-control"
+                          required
+                          value="{{ project is defined ? project.name : '' }}"
+                      >
+                  </div>
+                  <div class="mb-3">
+                      <label for="inputDevice" class="form-label">Device</label>
+                      <select id="inputDevice" name="device_id" class="form-control" required>
+                          <option value="">Select a device</option>
+                          {% for device in devices %}
+                              <option
+                                  value="{{ device.id }}"
+                                  {% if project is defined and project.device is defined and project.device.id == device.id %}selected{% endif %}
+                              >
+                                  {{ device.name }}
+                              </option>
+                          {% endfor %}
+                      </select>
+                  </div>
+                  <div class="mb-3">
+                      <label for="inputDescription" class="form-label">Description</label>
+                      <textarea
+                          id="inputDescription"
+                          name="description"
+                          rows="5"
+                          class="form-control"
+                          required
+                      >{{ project is defined ? project.description : '' }}</textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100">
+                      {{ project is defined ? 'Save Changes' : 'Add Project' }}
+                  </button>
+              </form>
+              <p class="text-center mt-3">
+                  <a href="{{ path('project_list') }}">Back to list</a>
+              </p>
+          </div>
+      </div>
+  </div>
 {% endblock %}

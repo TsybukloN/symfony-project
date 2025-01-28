@@ -28,28 +28,26 @@ class AppFixtures extends Fixture
         $hashedPassword = $this->passwordHasher->hashPassword($user, 'user_password');
         $user->setPassword($hashedPassword);
         $manager->persist($user);
-        $this->addReference('user', $user);
 
         $device = new Devices();
         $device->setName('Arduino Nano')
             ->setModel('Old Boot Buffer')
             ->setDescription('Second most popular Arduino device.');
         $manager->persist($device);
-        $this->addReference('Nano', $device);
 
         $firmware1 = new Firmwares();
         $firmware1->setFirmwareFileId(1)
             ->setVersion('1.0.0')
             ->setUploadedAt(new \DateTimeImmutable());
         $manager->persist($firmware1);
-        $this->addReference('1.0.0', $firmware1);
 
         $firmware2 = new Firmwares();
         $firmware2->setFirmwareFileId(2)
             ->setVersion('1.1.0')
             ->setUploadedAt(new \DateTimeImmutable());
         $manager->persist($firmware2);
-        $this->addReference('1.1.0', $firmware1);
+
+        $manager->flush();
 
         $project = new Projects();
         $project->setName('Test Projects');

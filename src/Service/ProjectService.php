@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Users;
 use App\Entity\Devices;
-use Psr\Log\LoggerInterface;
+
 
 class ProjectService
 {
@@ -21,7 +21,7 @@ class ProjectService
         $this->projectRepository = $projectRepository;
     }
 
-    public function handleAddProject(Request $request): bool
+    public function handleAddProject(Request $request, Users $user): bool
     {
         $name = $request->request->get('name');
         $description = $request->request->get('description');
@@ -36,13 +36,11 @@ class ProjectService
             return false;
         }
 
-        print_r($device);
-
         $project = new Projects();
-        $project->setName($name);
-        $project->setDescription($description);
-        $project->setDevice($device);
-        $project->setUploadedBy($request->getSession()->get('user') instanceof Users ? $request->getSession()->get('user') : null);
+        $project->setName($name)
+                ->setDescription($description)
+                ->setDevice($device)
+                ->setUploadedBy($user);
 
         $this->entityManager->persist($project);
         $this->entityManager->flush();
