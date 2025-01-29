@@ -31,19 +31,33 @@ class FirmwareController extends AbstractController
         ]);
     }*/
 
-    #[Route('/firmwares/add', name: 'firmwares_add', methods: ['GET', 'POST'])]
+    #[Route('/firmwares/add', name: 'firmwares_add')]
     public function add(Request $request): Response
     {
-        $isAdded = $this->firmwareService->handleAddFirmware($request);
+        $projectId = $request->query->get('projectId');
+        $projectId = (int) $projectId;
+        if (!$projectId) {
+            throw $this->createNotFoundException('Project ID is missing');
+        }
 
-        if ($isAdded) {
-            $this->addFlash('success', 'Firmware added successfully.');
-            return $this->redirectToRoute('project_list');
+        if ($request->isMethod('POST')) {
+            $isAdded = $this->firmwareService->handleAddFirmware($request);
+
+            if ($isAdded) {
+                $this->addFlash('success', 'Firmware added successfully.');
+                return $this->redirectToRoute('project_list');
+            }
+            else {
+                return new Response('There was an error adding the firmware.', 400);
+            }
         }
 
         $this->addFlash('error', 'There was an error adding the firmware.');
 
-        return $this->render('firmwares/form.html.twig');
+        return $this->render('firmwares/form.html.twig', [
+            'projectId' => $projectId,
+        ]);
+
     }
 
     #[Route('/firmwares/delete/{id}', name: 'firmwares_delete')]

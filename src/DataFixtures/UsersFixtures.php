@@ -25,7 +25,6 @@ class UsersFixtures extends Fixture
         $hashedPassword = $this->passwordHasher->hashPassword($admin, 'admin_password');
         $admin->setPassword($hashedPassword);
         $manager->persist($admin);
-        $this->addReference('admin', $admin);
 
         for ($i = 1; $i <= 5; $i++) {
             $user = new Users();
@@ -35,7 +34,6 @@ class UsersFixtures extends Fixture
             $hashedPassword = $this->passwordHasher->hashPassword($user, 'password');
             $user->setPassword($hashedPassword);
             $manager->persist($user);
-            $this->addReference("user{$i}", $user);
         }
 
         $manager->flush();

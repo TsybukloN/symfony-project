@@ -15,7 +15,6 @@ class DevicesFixtures extends Fixture
             ->setModel('REV 3')
             ->setDescription('Most popular Arduino device.');
         $manager->persist($device1);
-        $this->addReference('UNO', $device1);
 
         for ($i = 1; $i <= 5; $i++) {
             $device = new Devices();

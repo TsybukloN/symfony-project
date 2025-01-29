@@ -22,26 +22,43 @@ class FirmwareService
         $this->firmwareRepository = $firmwareRepository;
         $this->projectRepository = $projectRepository;
     }
-
     public function handleAddFirmware(Request $request): bool
     {
-        $version = $request->request->get('version');
-
-        if ($version === null) {
+        $projectId = $request->query->get('projectId');
+        if (!$projectId || !filter_var($projectId, FILTER_VALIDATE_INT)) {
             return false;
         }
 
-        $firmware = new Firmwares();
-        $firmware->setVersion($version)
-            ->setUploadedAt(new \DateTimeImmutable())
-            ->setFirmwareFileId(-1);
+        $project = $this->projectRepository->find($projectId);
+        if (!$project) {
+            return false;
+        }
 
-        $this->entityManager->persist($firmware);
-        $this->entityManager->flush();
+        $version = $request->request->get('version');
+        if (!$version || trim($version) === '') {
+            return false;
+        }
 
-        # TODO : Add to project
+        try {
+            $firmware = new Firmwares();
+            $firmware->setVersion($version)
+                ->setUploadedAt(new \DateTimeImmutable())
+                ->setFirmwareFileId(-1);
 
-        return true;
+            $this->entityManager->persist($firmware);
+
+            $this->entityManager->flush();
+
+            $project->addFirmwareId($firmware->getId());
+
+            $this->entityManager->persist($project);
+
+            $this->entityManager->flush();
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /*public function delete(Firmwares $firmware): void

@@ -8,7 +8,7 @@ Copyright (c) Mikita Tsybulka
 
 Run docker compose to build fresh images
 ```bash
-build --no-cache 
+docker build --no-cache 
 ```
 
 Run to set up and start a fresh Symfony project

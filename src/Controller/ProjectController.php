@@ -23,7 +23,7 @@ class ProjectController extends AbstractController
         $this->projectRepository = $projectRepository;
     }
 
-    #[Route('/projects/{page<\d+>}', name: 'project_list')]
+    #[Route('/projects/{page<\d+>}', name: 'project_list', methods : 'GET')]
     public function list(Request $request, FirmwaresRepository $firmwaresRepository): Response
     {
         $page = $request->query->getInt('page', 1);
@@ -48,7 +48,7 @@ class ProjectController extends AbstractController
         ]);
     }
 
-    #[Route('/projects/add', name: 'project_add', methods: ['GET', 'POST'])]
+    #[Route('/projects/add', name: 'project_add')]
     public function add(Request $request, DevicesRepository $deviceRepository): Response
     {
         $user = $this->getUser();
@@ -72,36 +72,42 @@ class ProjectController extends AbstractController
         ]);
     }
 
-    #[Route('/projects/edit/{id}', name: 'project_edit', methods: ['GET', 'POST'])]
+    #[Route('/projects/edit/{id}', name: 'project_edit')]
     public function edit(int $id, Request $request, DevicesRepository $deviceRepository): Response
     {
+
         $user = $this->getUser();
         if (!$user instanceof Users) {
             return $this->redirectToRoute('app_login');
         }
 
-        $devices = $deviceRepository->findAll();
         $project = $this->projectRepository->find($id);
 
         if (!$project) {
             throw $this->createNotFoundException('Project not found.');
         }
 
-        $isEdited = $this->projectService->handleEditProject($id, $request);
-
-        if ($isEdited) {
-            $this->addFlash('success', 'Project edited successfully.');
-
+        if ($request->isMethod('GET')) {
             return $this->render('projects/form.html.twig', [
-                'devices' => $devices,
                 'project' => $project,
+                'devices' => $deviceRepository->findAll(),
             ]);
         }
 
-        return $this->redirectToRoute('project_list');
+        if ($request->isMethod('POST')) {
+            $isEdited = $this->projectService->handleEditProject($id, $request);
+
+            if ($isEdited) {
+                $this->addFlash('success', 'Project updated successfully.');
+                return $this->redirectToRoute('project_list');
+            }
+        }
+
+        $this->addFlash('error', 'Failed to update project.');
+        return $this->redirectToRoute('project_edit', ['id' => $id]);
     }
 
-    #[Route('/projects/delete/{id}', name: 'project_delete', methods: ['DELETE'])]
+    #[Route('/projects/delete/{id}', name: 'project_delete')]
     public function delete(int $id): Response
     {
         $isDeleted = $this->projectService->handleDeleteProject($id);

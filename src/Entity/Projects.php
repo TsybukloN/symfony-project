@@ -77,6 +77,15 @@ class Projects
         return $this->firmware_ids;
     }
 
+    public function addFirmwareId(int $firmware_id): static
+    {
+        if (!in_array($firmware_id, $this->firmware_ids)) {
+            $this->firmware_ids[] = $firmware_id;
+        }
+
+        return $this;
+    }
+
     public function setFirmwareIds(array $firmware_ids): static
     {
         $this->firmware_ids = $firmware_ids;
