@@ -23,28 +23,67 @@ class ProjectController extends AbstractController
         $this->projectRepository = $projectRepository;
     }
 
-    #[Route('/projects/{page<\d+>}', name: 'project_list', methods : 'GET')]
-    public function list(Request $request, FirmwaresRepository $firmwaresRepository): Response
+    #[Route('/projects/{page<\d+>}', name: 'project_list', methods: ['GET'])]
+    public function list(Request $request, DevicesRepository $deviceRepository, FirmwaresRepository $firmwaresRepository): Response
     {
         $page = $request->query->getInt('page', 1);
         $perPage = $request->query->getInt('perPage', 50);
 
-        $projects = $this->projectService->getPaginatedProjects($page, $perPage);
-        $totalProjects = $this->projectService->getTotalProjectsCount();
+        $search = $request->query->get('search', '');
+        $devices = $request->query->all('devices') ?: [];
+        $myProjects = $request->query->getBoolean('myProjects', false);
+        $sortField = $request->query->get('sort', 'name');
+        $direction = $request->query->get('direction', 'asc');
+
+        $allowedSortFields = ['name', 'device', 'uploadedBy'];
+        $allowedDirections = ['asc', 'desc'];
+        if (!in_array($sortField, $allowedSortFields)) {
+            $sortField = 'name';
+        }
+        if (!in_array($direction, $allowedDirections)) {
+            $direction = 'asc';
+        }
+
+        $currentUser = $this->getUser();
+        if (!$currentUser instanceof Users) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $projects = $this->projectService->getPaginatedProjects(
+            $search,
+            (array)$devices,
+            $currentUser,
+            $myProjects,
+            $page,
+            $perPage,
+            $sortField,
+            $direction
+        );
+
+        $totalProjects = $this->projectService->getTotalProjectsCount($search, (array)$devices, $currentUser);
 
         $pages = (int) ceil($totalProjects / $perPage);
 
         foreach ($projects as $project) {
             $firmwareIds = $project->getFirmwareIds();
             $firmwares = $firmwaresRepository->findBy(['id' => $firmwareIds]);
-
+            $canEdit = $project->getUploadedBy()->getId() === $this->getUser()->getId();
+            $project->canEdit = $canEdit;
             $project->firmwares = $firmwares;
         }
+
+        $availableDevices = $deviceRepository->findAll();
 
         return $this->render('projects/list.html.twig', [
             'projects' => $projects,
             'page' => $page,
             'pages' => $pages,
+            'search' => $search,
+            'devices' => $devices,
+            'availableDevices' => $availableDevices,
+            'myProjects' => $myProjects,
+            'sort' => $sortField,
+            'direction' => $direction,
         ]);
     }
 
@@ -73,7 +112,7 @@ class ProjectController extends AbstractController
     }
 
     #[Route('/projects/edit/{id}', name: 'project_edit')]
-    public function edit(int $id, Request $request, DevicesRepository $deviceRepository): Response
+    public function edit(int $id, Request $request, DevicesRepository $deviceRepository , FirmwaresRepository $firmwaresRepository): Response
     {
 
         $user = $this->getUser();
@@ -88,6 +127,11 @@ class ProjectController extends AbstractController
         }
 
         if ($request->isMethod('GET')) {
+            $firmwareIds = $project->getFirmwareIds();
+            $firmwares = $firmwaresRepository->findBy(['id' => $firmwareIds]);
+
+            $project->firmwares = $firmwares;
+
             return $this->render('projects/form.html.twig', [
                 'project' => $project,
                 'devices' => $deviceRepository->findAll(),

@@ -19,19 +19,35 @@
                           value="{{ project is defined ? project.name : '' }}"
                       >
                   </div>
+                  {% if project is defined %}
+                      <label for="inputDevice" class="form-label">Firmwares</label>
+                      <div class="mb-3">
+                          {% if project.firmwares is not empty %}
+                              <ul class="list-group mt-2">
+                                  {% for firmware in project.firmwares %}
+                                      <li class="list-group-item">
+                                          <a href="{{ path('firmwares_edit', {id: firmware.id, projectId: project.id }) }}" class="btn btn-warning w-100 text-start">
+                                              Version: {{ firmware.version }}
+                                          </a>
+                                      </li>
+                                  {% endfor %}
+                              </ul>
+                          {% endif %}
+                      </div>
+                  {% endif %}
                   <div class="mb-3">
-                      <label for="inputDevice" class="form-label">Device</label>
-                      <select id="inputDevice" name="device_id" class="form-control" required>
-                          <option value="">Select a device</option>
-                          {% for device in devices %}
-                              <option
-                                  value="{{ device.id }}"
-                                  {% if project is defined and project.device is defined and project.device.id == device.id %}selected{% endif %}
-                              >
-                                  {{ device.name }}
-                              </option>
-                          {% endfor %}
-                      </select>
+                        <label for="inputDevice" class="form-label">Device</label>
+                        <select id="inputDevice" name="device_id" class="form-control" required>
+                            <option value="">Select a device</option>
+                            {% for device in devices %}
+                                <option
+                                    value="{{ device.id }}"
+                                    {% if project is defined and project.device is defined and project.device.id == device.id %}selected{% endif %}
+                                >
+                                    {{ device.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
                   </div>
                   <div class="mb-3">
                       <label for="inputDescription" class="form-label">Description</label>

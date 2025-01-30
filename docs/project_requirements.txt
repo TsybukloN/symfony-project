@@ -1,0 +1,22 @@
+A project created in PHP 8.x, utilizing the Symfony framework, and shared on Git:
+    GitHub: karolb
+    GitLab: @karol.b
+    Bitbucket: karol@bojski.dev
+
+1. Instructions on how to run the application.
+2. collection of requests in Postman or Insomnia, along with instructions on how to use the API.
+3. Implementation of the Model-View-Controller (MVC) pattern, including the use of:
+    Controllers
+    Entities
+    Repositories
+    Services
+4. Use of fixtures to load data.
+5. A key-value data structure implemented in a relational database (e.g., PostgreSQL) for storing user information or other data.
+6. Use of the Query Builder (QB).
+7. An API data formatter.
+8. Implementation of users, groups, authorization, and permissions in functions.
+9. Two custom CLI commands (e.g., add user).
+10. Unit tests written with PHPUnit (minimum of 10).
+11. Custom error handling in PHP/Symfony.
+12. Bhat tests (minimum of 10).
+13. Use of an SQL database (PostgreSQL).

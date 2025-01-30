@@ -1,13 +1,19 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('app_dashboard') }}">Dashboard</a>
-                </li>
-                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+         <div class="collapse navbar-collapse">
+             <ul class="navbar-nav me-auto">
+                 <li class="nav-item">
+                     <a class="nav-link" href="{{ path('home') }}">Home</a>
+                 </li>
+                 <li class="nav-item">
+                     <a class="nav-link" href="{{ path('project_list') }}">Dashboard</a>
+                 </li>
+             </ul>
+
+             <ul class="navbar-nav ms-auto">
+                 {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('profile') }}">Profile</a>
+                         <a class="nav-link" href="{{ path('profile') }}">Profile</a>
                     </li>
                     {% if is_granted('ROLE_ADMIN') %}
                         <li class="nav-item">
@@ -15,20 +21,17 @@
                         </li>
                     {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('project_list') }}">My projects</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="{{ path('logout') }}">Logout</a>
                     </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_register') }}">Register</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
+                 {% else %}
+                     <li class="nav-item">
+                         <a class="nav-link" href="{{ path('app_login') }}">Login</a>
+                     </li>
+                     <li class="nav-item">
+                         <a class="nav-link" href="{{ path('app_register') }}">Register</a>
+                     </li>
+                 {% endif %}
+             </ul>
+         </div>
     </div>
 </nav>

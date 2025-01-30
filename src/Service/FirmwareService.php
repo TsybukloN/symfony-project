@@ -22,6 +22,7 @@ class FirmwareService
         $this->firmwareRepository = $firmwareRepository;
         $this->projectRepository = $projectRepository;
     }
+
     public function handleAddFirmware(Request $request): bool
     {
         $projectId = $request->query->get('projectId');
@@ -61,33 +62,60 @@ class FirmwareService
         }
     }
 
-    /*public function delete(Firmwares $firmware): void
+    public function handleDeleteFirmware(Request $request): bool
     {
-        $qb = $this->connection->createQueryBuilder();
+        $firmwareId = $request->query->get('firmwareId');
+        if (!$firmwareId || !filter_var($firmwareId, FILTER_VALIDATE_INT)) {
+            return false;
+        }
 
-        $qb->delete('firmwares')
-            ->where('id = :id')
-            ->setParameter('id', $firmware->getId())
-            ->executeStatement();
+        $firmware = $this->firmwareRepository->find($firmwareId);
+        if (!$firmware) {
+            return false;
+        }
+
+        try {
+            // Удаляем прошивку
+            $this->entityManager->remove($firmware);
+            $this->entityManager->flush();
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
-    public function edit(Firmwares $firmware, array $updatedData): void
+    public function handleEditFirmware(int $firmwareId, int $projectId, Request $request): bool
     {
-        $qb = $this->connection->createQueryBuilder();
+        if (!$firmwareId || !filter_var($firmwareId, FILTER_VALIDATE_INT)) {
+            return false;
+        }
 
-        $qb->update('firmwares')
-            ->set('name', ':name')
-            ->set('file_path', ':file_path')
-            ->set('version', ':version')
-            ->set('uploaded_at', ':uploaded_at')
-            ->where('id = :id')
-            ->setParameters([
-                'name' => $updatedData['name'] ?? $firmware->getName(),
-                'file_path' => $updatedData['file_path'] ?? $firmware->getFilePath(),
-                'version' => $updatedData['version'] ?? $firmware->getVersion(),
-                'uploaded_at' => $updatedData['uploaded_at'] ?? $firmware->getUploadedAt()?->format('Y-m-d H:i:s'),
-                'id' => $firmware->getId(),
-            ])
-            ->executeStatement();
-    }*/
+        if (!$projectId || !filter_var($projectId, FILTER_VALIDATE_INT)) {
+            return false;
+        }
+
+        $firmware = $this->firmwareRepository->find($firmwareId);
+
+        if (!$firmware) {
+            return false;
+        }
+
+        $version = $request->request->get('version');
+        if (!$version || trim($version) === '') {
+            return false;
+        }
+
+        try {
+            $firmware->setVersion($version)
+                ->setUploadedAt(new \DateTimeImmutable());
+
+            $this->entityManager->persist($firmware);
+            $this->entityManager->flush();
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }

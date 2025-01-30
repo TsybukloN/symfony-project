@@ -21,16 +21,6 @@ class FirmwareController extends AbstractController
         $this->firmwaresRepository = $firmwaresRepository;
     }
 
-    /*#[Route('/firmwares', name: 'firmwares_list')]
-    public function list(): Response
-    {
-        $firmwares = $this->firmwareService->getPaginatedFirmwares(1);
-
-        return $this->render('firmwares/list.html.twig', [
-            'firmwares' => $firmwares,
-        ]);
-    }*/
-
     #[Route('/firmwares/add', name: 'firmwares_add')]
     public function add(Request $request): Response
     {
@@ -54,7 +44,7 @@ class FirmwareController extends AbstractController
 
         $this->addFlash('error', 'There was an error adding the firmware.');
 
-        return $this->render('firmwares/form.html.twig', [
+        return $this->render('firmwares/add.html.twig', [
             'projectId' => $projectId,
         ]);
 
@@ -65,7 +55,7 @@ class FirmwareController extends AbstractController
     {
         $firmware = $this->firmwaresRepository->find($id);
         if ($firmware) {
-            $this->firmwareService->delete($firmware);
+            $this->firmwareService->handleDeleteFirmware($firmware);
             $this->addFlash('success', 'Firmware deleted successfully.');
         } else {
             $this->addFlash('error', 'Firmware not found.');
@@ -74,20 +64,29 @@ class FirmwareController extends AbstractController
         return $this->redirectToRoute('project_list');
     }
 
-    #[Route('/firmwares/edit/{id}', name: 'firmwares_edit')]
-    public function edit(int $id, Request $request): Response
+    #[Route('/project/{projectId}/firmwares/edit/{id}', name: 'firmwares_edit')]
+    public function edit(int $id, int $projectId, Request $request): Response
     {
         $firmware = $this->firmwaresRepository->find($id);
+
         if (!$firmware) {
             $this->addFlash('error', 'Firmware not found.');
             return $this->redirectToRoute('project_list');
         }
 
-        $updatedData = $request->request->all();
-        $this->firmwareService->edit($firmware, $updatedData);
+        if ($request->isMethod('POST')) {
+            $idEdited = $this->firmwareService->handleEditFirmware($id, $projectId, $request);
+            if (!$idEdited) {
+                return new Response('There was an error adding the firmware.', 400);
+            }
+            $this->addFlash('success', 'Firmware updated successfully.');
+            return $this->redirectToRoute('project_edit', ['id' => $projectId]);
+        }
 
-        $this->addFlash('success', 'Firmware updated successfully.');
-
-        return $this->render('firmwares/form.html.twig');
+        return $this->render('firmwares/edit.html.twig', [
+            'firmware' => $firmware,
+            'projectId' => $projectId,
+        ]);
     }
+
 }

@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Firmware{% endblock %}
+
+{% block body %}
+    <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+        <div class="card shadow-sm" style="width: 400px;">
+            <div class="container mt-5">
+                <h1 class="text-center mb-4">Edit Firmware</h1>
+                <form method="post" action="{{ path('firmwares_edit', {id: firmware.id, projectId: projectId }) }}">
+                    <div class="mb-3">
+                        <label for="inputVersion" class="form-label">Version</label>
+                        <input
+                            type="text"
+                            id="inputVersion"
+                            name="version"
+                            class="form-control"
+                            value="{{ firmware.version }}"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Firmware</button>
+                </form>
+                <p class="text-center mt-3">
+                    <a href="{{ path('project_edit', {id: projectId})  }}">Back to project</a>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

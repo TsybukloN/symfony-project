@@ -2,12 +2,12 @@
 
 namespace App\Service;
 
-use App\Entity\Projects;
-use App\Repository\ProjectRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Users;
 use App\Entity\Devices;
+use App\Entity\Projects;
+use App\Repository\ProjectRepository;
 
 
 class ProjectService
@@ -100,22 +100,84 @@ class ProjectService
         }
     }
 
-    public function getPaginatedProjects(int $page = 1, int $perPage = 50): array
-    {
-        $page = max(1, $page);
-        $perPage = max(1, $perPage);
-
+    public function getPaginatedProjects(
+        string $search = '',
+        array $deviceIds = [],
+        ?Users $currentUser = null,
+        bool $myProjects = false,
+        int $page = 1,
+        int $perPage = 50,
+        string $sortField = 'name',
+        string $direction = 'asc'
+    ) {
         $offset = ($page - 1) * $perPage;
 
-        try {
-            return $this->projectRepository->findBy([], ['id' => 'ASC'], $perPage, $offset);
-        } catch (\Exception $e) {
-            return [];
+        $queryBuilder = $this->entityManager->createQueryBuilder()
+            ->select('p')
+            ->from(Projects::class, 'p')
+            ->leftJoin('p.device', 'd')
+            ->leftJoin('p.uploadedBy', 'u')
+            ->addSelect('d', 'u');
+
+        if (!empty($search)) {
+            $queryBuilder->andWhere('p.name LIKE :search OR d.name LIKE :search OR u.username LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
         }
+
+        if (!empty($deviceIds)) {
+            $queryBuilder->andWhere('d.id IN (:deviceIds)')
+                ->setParameter('deviceIds', $deviceIds);
+        }
+
+        if ($myProjects && $currentUser !== null) {
+            $queryBuilder->andWhere('u.id = :currentUserId')
+                ->setParameter('currentUserId', $currentUser->getId());
+        }
+
+        switch ($sortField) {
+            case 'device':
+                $queryBuilder->orderBy('d.name', $direction);
+                break;
+            case 'uploadedBy':
+                $queryBuilder->orderBy('u.username', $direction);
+                break;
+            default:
+                $queryBuilder->orderBy('p.name', $direction);
+                break;
+        }
+
+        $queryBuilder->setFirstResult($offset)
+            ->setMaxResults($perPage);
+
+        return $queryBuilder->getQuery()->getResult();
     }
 
-    public function getTotalProjectsCount(): int
-    {
-        return $this->projectRepository->count([]);
+    public function getTotalProjectsCount(
+        string $search = '',
+        array $deviceIds = [],
+        ?Users $currentUser = null
+    ): int {
+        $queryBuilder = $this->entityManager->createQueryBuilder()
+            ->select('COUNT(p.id)')
+            ->from(Projects::class, 'p')
+            ->leftJoin('p.device', 'd')
+            ->leftJoin('p.uploadedBy', 'u');
+
+        if (!empty($search)) {
+            $queryBuilder->andWhere('p.name LIKE :search OR d.name LIKE :search OR u.username LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        if (!empty($deviceIds)) {
+            $queryBuilder->andWhere('d.id IN (:deviceIds)')
+                ->setParameter('deviceIds', $deviceIds);
+        }
+
+        if ($currentUser !== null) {
+            $queryBuilder->andWhere('u.id = :currentUserId')
+                ->setParameter('currentUserId', $currentUser->getId());
+        }
+
+        return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }
 }

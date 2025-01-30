@@ -16,6 +16,28 @@ class ProjectRepository extends ServiceEntityRepository
         parent::__construct($registry, Projects::class);
     }
 
+    public function findAllSorted(string $sortField, string $sortDirection): array
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->leftJoin('p.device', 'd')
+            ->leftJoin('p.uploadedBy', 'u')
+            ->addSelect('d', 'u');
+
+        switch ($sortField) {
+            case 'device':
+                $queryBuilder->orderBy('d.name', $sortDirection);
+                break;
+            case 'uploadedBy':
+                $queryBuilder->orderBy('u.username', $sortDirection);
+                break;
+            default:
+                $queryBuilder->orderBy('p.name', $sortDirection);
+                break;
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
     //    /**
     //     * @return Projects[] Returns an array of Projects objects
     //     */
