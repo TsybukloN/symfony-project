@@ -47,14 +47,31 @@ class AppFixtures extends Fixture
             ->setUploadedAt(new \DateTimeImmutable());
         $manager->persist($firmware2);
 
+        $firmware3 = new Firmwares();
+        $firmware3->setFirmwareFileId(2)
+            ->setVersion('1.6.0')
+            ->setUploadedAt(new \DateTimeImmutable());
+        $manager->persist($firmware3);
+
+        $firmware4 = new Firmwares();
+        $firmware4->setFirmwareFileId(2)
+            ->setVersion('2.1.0')
+            ->setUploadedAt(new \DateTimeImmutable());
+        $manager->persist($firmware4);
+
         $manager->flush();
 
         $project = new Projects();
-        $project->setName('Test Projects');
-        $project->setDescription('This is a test project.');
+        $project->setName('Wormhole');
+        $project->setDescription('This project allowed create own mesh-network based on this devices.');
         $project->setDevice($device);
         $project->setUploadedBy($user);
-        $project->setFirmwareIds([$firmware1->getId(), $firmware2->getId()]);
+        $project->setFirmwareIds([
+            $firmware1->getId(),
+            $firmware2->getId(),
+            $firmware3->getId(),
+            $firmware4->getId()
+        ]);
         $manager->persist($project);
 
         $manager->flush();
