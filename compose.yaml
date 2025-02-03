@@ -8,7 +8,6 @@ services:
             MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
             DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-15}&charset=${POSTGRES_CHARSET:-utf8}
             MERCURE_URL: ${CADDY_MERCURE_URL:-http://php/.well-known/mercure}
-            MONGODB_URI: mongodb://mongo:27017/symfony_db
             MERCURE_PUBLIC_URL: ${CADDY_MERCURE_PUBLIC_URL:-https://${SERVER_NAME:-localhost}/.well-known/mercure}
             MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
         volumes:
@@ -24,8 +23,6 @@ services:
             - target: 443
               published: ${HTTP3_PORT:-443}
               protocol: udp
-        depends_on:
-            - mongo
         networks:
             - app_network
     
@@ -34,16 +31,6 @@ services:
         restart: always
         ports:
             - 8080:8080
-        networks:
-            - app_network
-    
-    mongo:
-        image: mongo:6.0
-        container_name: mongodb
-        ports:
-            - "27017:27017"
-        volumes:
-            - mongo_data:/data/db
         networks:
             - app_network
     

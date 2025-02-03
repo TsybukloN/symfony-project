@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\FirmwareFileStorage;
 use App\Entity\Firmwares;
 use App\Repository\FirmwaresRepository;
 use App\Repository\ProjectRepository;
@@ -40,20 +41,36 @@ class FirmwareService
             return false;
         }
 
+        $file = $request->files->get('file');
+        if (!$file) {
+            return true;
+        }
+
         try {
+            $fileData = file_get_contents($file->getPathname());
+
+            $fileStorage = new FirmwareFileStorage();
+
+            $mimiType = null;
+            if ($file->getMimeType()) {
+                $mimiType = $file->getMimeType();
+            }
+            $fileStorage->setFile($fileData, $mimiType);
+
+            $this->entityManager->persist($fileStorage);
+            $this->entityManager->flush();
+
             $firmware = new Firmwares();
             $firmware->setVersion($version)
                 ->setUploadedAt(new \DateTimeImmutable())
-                ->setFirmwareFileId(-1);
+                ->setFirmwareFileId($fileStorage->getId());
 
             $this->entityManager->persist($firmware);
-
             $this->entityManager->flush();
 
             $project->addFirmwareId($firmware->getId());
 
             $this->entityManager->persist($project);
-
             $this->entityManager->flush();
 
             return true;
@@ -62,14 +79,13 @@ class FirmwareService
         }
     }
 
-    public function handleDeleteFirmware(Request $request): bool
+    public function handleDeleteFirmware(int $id): bool
     {
-        $firmwareId = $request->query->get('firmwareId');
-        if (!$firmwareId || !filter_var($firmwareId, FILTER_VALIDATE_INT)) {
+        if (!$id || !filter_var($id, FILTER_VALIDATE_INT)) {
             return false;
         }
 
-        $firmware = $this->firmwareRepository->find($firmwareId);
+        $firmware = $this->firmwareRepository->find($id);
         if (!$firmware) {
             return false;
         }
@@ -106,9 +122,23 @@ class FirmwareService
             return false;
         }
 
+        $file = $request->files->get('file');
+        if (!$file) {
+            return false;
+        }
+
         try {
+            $fileData = file_get_contents($file->getPathname());
+
+            $fileStorage = new FirmwareFileStorage();
+            $fileStorage->setFile($fileData, $file->getMimeType());
+
+            $this->entityManager->persist($fileStorage);
+            $this->entityManager->flush();
+
             $firmware->setVersion($version)
-                ->setUploadedAt(new \DateTimeImmutable());
+                ->setUploadedAt(new \DateTimeImmutable())
+                ->setFirmwareFileId($fileStorage->getId());
 
             $this->entityManager->persist($firmware);
             $this->entityManager->flush();

@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\FirmwareService;
 use App\Repository\FirmwaresRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\FirmwareFileStorage;
 
 
 class FirmwareController extends AbstractController
@@ -47,18 +49,44 @@ class FirmwareController extends AbstractController
         return $this->render('firmwares/add.html.twig', [
             'projectId' => $projectId,
         ]);
+    }
 
+    #[Route('/firmwares/download/{id}', name: 'firmwares_download')]
+    public function download(int $id, EntityManagerInterface $em): Response
+    {
+        $firmware = $this->firmwaresRepository->find($id);
+
+        if (!$firmware) {
+            return new Response('Firmware not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $fileStorage = $em->getRepository(FirmwareFileStorage::class)->find($firmware->getFirmwareFileId());
+
+        if (!$fileStorage) {
+            return new Response('File not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $fileData = stream_get_contents($fileStorage->getFileData());
+        $contentType = $fileStorage->getMimeType() ?? 'application/octet-stream';
+        $fileName = 'firmware_' . $firmware->getVersion() . '.' . $fileStorage->getExtension();
+
+        return new Response(
+            $fileData,
+            Response::HTTP_OK,
+            [
+                'Content-Type' => $contentType, // Можно заменить на нужный MIME-тип
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Content-Length' => strlen($fileData),
+            ]
+        );
     }
 
     #[Route('/firmwares/delete/{id}', name: 'firmwares_delete')]
     public function delete(int $id): Response
     {
-        $firmware = $this->firmwaresRepository->find($id);
-        if ($firmware) {
-            $this->firmwareService->handleDeleteFirmware($firmware);
-            $this->addFlash('success', 'Firmware deleted successfully.');
-        } else {
-            $this->addFlash('error', 'Firmware not found.');
+        $isDeleted =  $this->firmwareService->handleDeleteFirmware($id);
+        if (!$isDeleted) {
+            return $this->redirectToRoute('error', ['statusCode' => 400, 'message' => 'There was an error deleting the firmware.']);
         }
 
         return $this->redirectToRoute('project_list');
@@ -70,11 +98,11 @@ class FirmwareController extends AbstractController
         $firmware = $this->firmwaresRepository->find($id);
 
         if (!$firmware) {
-            $this->addFlash('error', 'Firmware not found.');
-            return $this->redirectToRoute('project_list');
+            return $this->redirectToRoute('error', ['statusCode' => 400, 'message' => 'Firmware not found']);
         }
 
         if ($request->isMethod('POST')) {
+
             $idEdited = $this->firmwareService->handleEditFirmware($id, $projectId, $request);
             if (!$idEdited) {
                 return new Response('There was an error adding the firmware.', 400);

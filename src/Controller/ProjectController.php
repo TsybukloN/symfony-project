@@ -123,7 +123,8 @@ class ProjectController extends AbstractController
         $project = $this->projectRepository->find($id);
 
         if (!$project) {
-            throw $this->createNotFoundException('Project not found.');
+            return $this->redirectToRoute('error', ['statusCode' => 400, 'message' => 'Project not found.']);
+            #throw $this->createNotFoundException('Project not found.');
         }
 
         if ($request->isMethod('GET')) {
@@ -141,13 +142,12 @@ class ProjectController extends AbstractController
         if ($request->isMethod('POST')) {
             $isEdited = $this->projectService->handleEditProject($id, $request);
 
-            if ($isEdited) {
-                $this->addFlash('success', 'Project updated successfully.');
-                return $this->redirectToRoute('project_list');
+            if (!$isEdited) {
+                return $this->redirectToRoute('error', ['statusCode' => 400, 'message' => 'Failed to update project.']);
             }
+            return $this->redirectToRoute('project_list');
         }
 
-        $this->addFlash('error', 'Failed to update project.');
         return $this->redirectToRoute('project_edit', ['id' => $id]);
     }
 
@@ -156,10 +156,8 @@ class ProjectController extends AbstractController
     {
         $isDeleted = $this->projectService->handleDeleteProject($id);
 
-        if ($isDeleted) {
-            $this->addFlash('success', 'Project deleted successfully.');
-        } else {
-            $this->addFlash('error', 'There was an error deleting the project.');
+        if (!$isDeleted) {
+            return $this->redirectToRoute('error', ['statusCode' => 400, 'message' => 'There was an error deleting the project.']);
         }
 
         return $this->redirectToRoute('project_list');

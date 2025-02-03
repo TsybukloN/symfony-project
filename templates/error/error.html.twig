@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Error {{ code }}{% endblock %}
+
+{% block body %}
+    <div class="container text-center py-5">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-md-start text-center">
+                <h1 class="display-4 text-danger">Error {{ code }}</h1>
+                <p class="lead text-danger">{{ message }}</p>
+            </div>
+            <div class="col-md-6">
+                <img src="{{ asset('images/boom.jpeg') }}" alt="Error Image" class="img-fluid">
+            </div>
+        </div>
+    </div>
+{% endblock %}

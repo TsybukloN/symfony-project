@@ -102,12 +102,22 @@
                 <tr class="collapse" id="firmwares-{{ project.id }}">
                     <td colspan="4">
                         <strong>Firmwares:</strong>
+
                         {% if project.firmwares is not empty %}
                             <ul class="list-group mt-2">
                                 {% for firmware in project.firmwares %}
-                                    <li class="list-group-item">
-                                        Version: {{ firmware.version }} - Uploaded At: {{ firmware.uploadedAt|date('Y-m-d H:i') }}
-                                    </li>
+                                    {% if firmware is defined and firmware.version is defined and firmware.uploadedAt is defined and firmware.firmwareFileId is defined %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>
+                                                Version: {{ firmware.version }} - Uploaded At: {{ firmware.uploadedAt|date('Y-m-d H:i') }}
+                                            </span>
+                                            <a href="{{ path('firmwares_download', { 'id': firmware.id }) }}" class="btn btn-primary btn-sm" role="button">
+                                                <img src="{{ asset('images/download-icon.png') }}" alt="Download" style="width: 16px; height: 16px;">
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="list-group-item text-danger">Error: Firmware data is incomplete.</li>
+                                    {% endif %}
                                 {% endfor %}
                             </ul>
                         {% else %}

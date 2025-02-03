@@ -1,9 +1,0 @@
-doctrine_mongodb:
-    connections:
-        default:
-            server: "%env(MONGODB_URI)%"
-            options: {}
-    default_database: symfony_db
-    document_managers:
-        default:
-            auto_mapping: true

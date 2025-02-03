@@ -7,10 +7,14 @@
         <div class="card shadow-sm" style="width: 400px;">
             <div class="container mt-5">
                 <h1 class="text-center mb-4">Add Firmware</h1>
-                <form method="post" action="{{ path('firmwares_add', {projectId: projectId}) }}">
+                <form method="post" enctype="multipart/form-data" action="{{ path('firmwares_add', {projectId: projectId}) }}">
                     <div class="mb-3">
                         <label for="inputVersion" class="form-label">Version</label>
                         <input type="text" id="inputVersion" name="version" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputFile" class="form-label">Upload File</label>
+                        <input type="file" id="inputFile" name="file" class="form-control" />
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Add Firmware</button>
                 </form>
