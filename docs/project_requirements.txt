@@ -4,7 +4,7 @@ A project created in PHP 8.x, utilizing the Symfony framework, and shared on Git
     Bitbucket: karol@bojski.dev
 
 1. Instructions on how to run the application.
-2. collection of requests in Postman or Insomnia, along with instructions on how to use the API.
+2. Collection of requests in Postman or Insomnia, along with instructions on how to use the API.
 -. Implementation of the Model-View-Controller (MVC) pattern, including the use of:
     Controllers
     Entities
@@ -15,7 +15,7 @@ A project created in PHP 8.x, utilizing the Symfony framework, and shared on Git
 -. Use of the Query Builder (QB).
 -. An API data formatter.
 -. Implementation of users, groups, authorization, and permissions in functions.
-9. Two custom CLI commands (e.g., add user).
+-. Two custom CLI commands (e.g., add user).
 10. Unit tests written with PHPUnit (minimum of 10).
 -. Custom error handling in PHP/Symfony.
 12. Bhat tests (minimum of 10).

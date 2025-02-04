@@ -54,14 +54,9 @@ Make Fixture
 php bin/console make:fixture <Entiry>Fixtures
 ```
 
-Load fixtures to database (Before loafing **restart php container**)
+Load fixtures to database
 
 ```bash
 php bin/console doctrine:fixtures:load
-```
-or delete all data before and load.
-
-```bash
-php bin/console doctrine:fixtures:load --append
 ```
 ---

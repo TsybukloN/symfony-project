@@ -59,5 +59,4 @@ networks:
 volumes:
     caddy_data:
     caddy_config:
-    mongo_data:
     database_data:
