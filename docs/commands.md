@@ -59,4 +59,12 @@ Load fixtures to database
 ```bash
 php bin/console doctrine:fixtures:load
 ```
----
+
+
+### Testing
+
+Run tests
+
+```bash
+vendor/bin/phpunit tests/Service/MyServiceTest.php
+```

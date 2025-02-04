@@ -19,11 +19,8 @@ home:
 
 profile:
     path: /profile
-    controller: App\Controller\ProfileController::show
-admin:
-    path: /admin
-    controller: App\Controller\AdminController::dashboard
-
+    controller: App\Controller\ProfileController::index
+    
 logout:
     path: /logout
     controller: App\Controller\SecurityController::logout
