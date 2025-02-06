@@ -1,22 +1,34 @@
 <?php
 
 use Behat\Behat\Context\Context;
-use Behat\Gherkin\Node\PyStringNode;
-use Behat\Gherkin\Node\TableNode;
+use Behat\MinkExtension\Context\MinkContext;
 
-/**
- * Defines application features from the specific context.
- */
-class FeatureContext implements Context
+class FeatureContext extends MinkContext implements Context
 {
     /**
-     * Initializes context.
-     *
-     * Every scenario gets its own context instance.
-     * You can also pass arbitrary arguments to the
-     * context constructor through behat.yml.
+     * @Given /^I am logged in as "([^"]*)"$/
      */
-    public function __construct()
+    public function iAmLoggedInAs($role)
     {
+        $this->visit('/login');
+        $this->fillField('_username', 'admin@example.com');
+        $this->fillField('_password', 'admin_password');
+        $this->pressButton('Login');
+    }
+
+    /**
+     * @When /^I am on "([^"]*)"$/
+     */
+    public function iNavigateTo($url)
+    {
+        $this->visit($url);
+    }
+
+    /**
+     * @Then /^I should see "([^"]*)"$/
+     */
+    public function iShouldSeeTheText($text)
+    {
+        $this->assertPageContainsText($text);
     }
 }

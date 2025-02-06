@@ -3,7 +3,7 @@ A project created in PHP 8.x, utilizing the Symfony framework, and shared on Git
     GitLab: @karol.b
     Bitbucket: karol@bojski.dev
 
-1. Instructions on how to run the application.
+-. Instructions on how to run the application.
 2. Collection of requests in Postman or Insomnia, along with instructions on how to use the API.
 -. Implementation of the Model-View-Controller (MVC) pattern, including the use of:
     Controllers

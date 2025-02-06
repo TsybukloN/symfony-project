@@ -1,0 +1,13 @@
+default:
+    suites:
+        default:
+            type: symfony2
+            symfony: ~
+            paths:
+                features: features
+            filters:
+                tags: ~
+    extensions:
+        Behat\Symfony2Extension:
+            kernel:
+                path: 'src/Kernel.php'

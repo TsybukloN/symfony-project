@@ -1,52 +1,87 @@
-# Symfony Docker
+# Symfony Project 'Firmware Platformer'
 
-A [Docker](https://www.docker.com/)-based installer and runtime for the [Symfony](https://symfony.com) web framework,
-with [FrankenPHP](https://frankenphp.dev) and [Caddy](https://caddyserver.com/) inside!
+## Instructions on How to Run the Application
 
-![CI](https://github.com/dunglas/symfony-docker/workflows/CI/badge.svg)
+1. [Install Docker](https://www.docker.com/)
+2. Clone the repository
+```bash
+https://github.com/TsybukloN/symfony-project.git
+cd symfony-project
+```
+3. Run `docker compose build --no-cache` to build fresh images
+4. Run `docker compose up --pull always -d --wait` to set up and start a fresh Symfony project
 
-## Getting Started
+### To stop and delete the Docker containers
++ Run `docker compose stop` to stop and delete the Docker containers.
++ Run `docker compose down --remove-orphans` to stop and delete the Docker containers.
 
-1. If not already done, [install Docker Compose](https://docs.docker.com/compose/install/) (v2.10+)
-2. Run `docker compose build --no-cache` to build fresh images
-3. Run `docker compose up --pull always -d --wait` to set up and start a fresh Symfony project
-4. Open `https://localhost` in your favorite web browser and [accept the auto-generated TLS certificate](https://stackoverflow.com/a/15076602/1352334)
-5. Run `docker compose stop` to stop and delete the Docker containers.
-6. Run `docker compose down --remove-orphans` to stop and delete the Docker containers.
+5. Run `docker exec -it <container_id> php bin/console doctrine:fixtures:load` to upload to database default(test) data. (`docker ps` to see container_id used app-php image)
+6. Open `https://localhost`. **Better to use your web browser**. It allows you to see the complete design of the project.
+7. If you did point (5)(load fixtures) you can log in with the following credentials:
 
-## Features
+- **Login**: `user@example.com`
+- **Password**: `user_password`
 
-* Production, development and CI ready
-* Just 1 service by default
-* Blazing-fast performance thanks to [the worker mode of FrankenPHP](https://github.com/dunglas/frankenphp/blob/main/docs/worker.md) (automatically enabled in prod mode)
-* [Installation of extra Docker Compose services](docs/extra-services.md) with Symfony Flex
-* Automatic HTTPS (in dev and prod)
-* HTTP/3 and [Early Hints](https://symfony.com/blog/new-in-symfony-6-3-early-hints) support
-* Real-time messaging thanks to a built-in [Mercure hub](https://symfony.com/doc/current/mercure.html)
-* [Vulcain](https://vulcain.rocks) support
-* Native [XDebug](docs/xdebug.md) integration
-* Super-readable configuration
+or
 
-**Enjoy!**
+- **Login**: `admin@example.com`
+- **Password**: `admin_password`
 
-## Docs
+## Description and Features
 
-1. [Options available](docs/options.md)
-2. [Using Symfony Docker with an existing project](docs/existing-project.md)
-3. [Support for extra services](docs/extra-services.md)
-4. [Deploying in production](docs/production.md)
-5. [Debugging with Xdebug](docs/xdebug.md)
-6. [TLS Certificates](docs/tls.md)
-7. [Using MySQL instead of PostgreSQL](docs/mysql.md)
-8. [Using Alpine Linux instead of Debian](docs/alpine.md)
-9. [Using a Makefile](docs/makefile.md)
-10. [Updating the template](docs/updating.md)
-11. [Troubleshooting](docs/troubleshooting.md)
+This project is a Symfony-based web application that allows users to manage, upload, download firmware files and view them in a list. The application is designed to be user-friendly and easy to use. The application is built using the Symfony framework and uses Docker to manage the development environment.
 
-## License
+### Features
 
-Symfony Docker is available under the MIT License.
+- User registration and login
+- User show profile
+- User can view the list of projects and firmware files
+- User can create, edit, delete projects, that contain firmware files with version
+- User can create, edit, delete firmware files
+- User can download firmware files
+- User can search for firmware files by filters
+- Admin can manage all the project data in the application
 
-## Credits
+### Registration page
 
-Created by [Kévin Dunglas](https://dunglas.dev), co-maintained by [Maxime Helias](https://twitter.com/maxhelias) and sponsored by [Les-Tilleuls.coop](https://les-tilleuls.coop).
+![Registration](docs/images/Registration.png)
+
+### Login page
+
+The user can log in to the application using the login form.
+
+![Login](docs/images/Login.png)
+
+### Home page with start information
+
+![Home](docs/images/Home.png)
+
+### Dashboard page with the list of projects
+
+![Dashboard](docs/images/Dashboard.png)
+
+### Create a new project page
+
+![Add Project](docs/images/AddProject.png)
+
+### Edit Project page
+
+![Edit Project](docs/images/EditProject.png)
+
+### Edit Create page to the project
+
+![Add Firmware](docs/images/AddFirmware.png)
+
+### Edit Firmware page of the project
+
+![Edit Firmware](docs/images/EditFirmware.png)
+
+### Profile page
+
+![Profile](docs/images/Profile.png)
+
+### Example of Error page
+
+Error page is displayed when the user tries to access a page that does not exist or when an error occurs.
+
+![Error](docs/images/Error.png)

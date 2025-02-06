@@ -18,12 +18,6 @@ class DevicesFixtures extends Fixture
             ->setDescription('Most popular Arduino device.');
         $platforms[] = $device1;
 
-        $device2 = new Devices();
-        $device2->setName('Raspberry Pi 4')
-            ->setModel('Model B')
-            ->setDescription('Powerful single-board computer with ARM processor.');
-        $platforms[] = $device2;
-
         $device3 = new Devices();
         $device3->setName('ESP32')
             ->setModel('WROOM-32')

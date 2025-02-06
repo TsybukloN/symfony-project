@@ -36,7 +36,6 @@
 
                 <div class="col-md-6 col-sm-12">
                     <select name="devices[]" id="devices" class="form-select" multiple>
-                        <option value="all" {% if 'all' in devices %}selected{% endif %}>All Devices</option>
                         {% for device in availableDevices %}
                             <option value="{{ device.id }}" {% if device.id in devices %}selected{% endif %}>
                                 {{ device.name }}

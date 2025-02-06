@@ -24,7 +24,10 @@ class ProjectController extends AbstractController
     }
 
     #[Route('/projects/{page<\d+>}', name: 'project_list', methods: ['GET'])]
-    public function list(Request $request, DevicesRepository $deviceRepository, FirmwaresRepository $firmwaresRepository): Response
+    public function list(
+        Request $request,
+        DevicesRepository $deviceRepository,
+        FirmwaresRepository $firmwaresRepository): Response
     {
         $page = $request->query->getInt('page', 1);
         $perPage = $request->query->getInt('perPage', 50);
@@ -67,7 +70,7 @@ class ProjectController extends AbstractController
         foreach ($projects as $project) {
             $firmwareIds = $project->getFirmwareIds();
             $firmwares = $firmwaresRepository->findBy(['id' => $firmwareIds]);
-            $canEdit = $project->getUploadedBy()->getId() === $this->getUser()->getId();
+            $canEdit = $project->getUploadedBy()->getId() === $this->getUser()->getId() || $currentUser->isAdmin();
             $project->canEdit = $canEdit;
             $project->firmwares = $firmwares;
         }
@@ -100,11 +103,8 @@ class ProjectController extends AbstractController
         $isAdded = $this->projectService->handleAddProject($request, $user);
 
         if ($isAdded) {
-            $this->addFlash('success', 'Project added successfully.');
             return $this->redirectToRoute('project_list');
         }
-
-        $this->addFlash('error', 'There was an error adding the project.');
 
         return $this->render('projects/form.html.twig', [
             'devices' => $devices,
@@ -124,7 +124,6 @@ class ProjectController extends AbstractController
 
         if (!$project) {
             return $this->redirectToRoute('error', ['statusCode' => 400, 'message' => 'Project not found.']);
-            #throw $this->createNotFoundException('Project not found.');
         }
 
         if ($request->isMethod('GET')) {

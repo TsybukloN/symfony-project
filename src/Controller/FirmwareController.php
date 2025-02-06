@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Uploads;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,15 +37,12 @@ class FirmwareController extends AbstractController
             $isAdded = $this->firmwareService->handleAddFirmware($request);
 
             if ($isAdded) {
-                $this->addFlash('success', 'Firmware added successfully.');
                 return $this->redirectToRoute('project_list');
             }
             else {
-                return new Response('There was an error adding the firmware.', 400);
+                return $this->redirectToRoute('error', ['statusCode' => 400, 'message' => 'There was an error adding the firmware.']);
             }
         }
-
-        $this->addFlash('error', 'There was an error adding the firmware.');
 
         return $this->render('firmwares/add.html.twig', [
             'projectId' => $projectId,
@@ -57,7 +55,7 @@ class FirmwareController extends AbstractController
         $firmware = $this->firmwaresRepository->find($id);
 
         if (!$firmware) {
-            return new Response('Firmware not found', Response::HTTP_NOT_FOUND);
+            return $this->redirectToRoute('error', ['statusCode' => 400, 'message' => 'Firmware not found.']);
         }
 
         $fileStorage = $em->getRepository(FirmwareFileStorage::class)->find($firmware->getFirmwareFileId());
@@ -70,11 +68,19 @@ class FirmwareController extends AbstractController
         $contentType = $fileStorage->getMimeType() ?? 'application/octet-stream';
         $fileName = 'firmware_' . $firmware->getVersion() . '.' . $fileStorage->getExtension();
 
+        $upload = new Uploads();
+        $upload->setFirmwareId($id)
+            ->setUploadedAt(new \DateTimeImmutable())
+            ->setUserId($this->getUser()->getId());
+
+        $em->persist($upload);
+        $em->flush();
+
         return new Response(
             $fileData,
             Response::HTTP_OK,
             [
-                'Content-Type' => $contentType, // Можно заменить на нужный MIME-тип
+                'Content-Type' => $contentType,
                 'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
                 'Content-Length' => strlen($fileData),
             ]
@@ -105,7 +111,7 @@ class FirmwareController extends AbstractController
 
             $idEdited = $this->firmwareService->handleEditFirmware($id, $projectId, $request);
             if (!$idEdited) {
-                return new Response('There was an error adding the firmware.', 400);
+                return $this->redirectToRoute('error', ['statusCode' => 400, 'message' => 'There was an error editing the firmware.']);
             }
             $this->addFlash('success', 'Firmware updated successfully.');
             return $this->redirectToRoute('project_edit', ['id' => $projectId]);

@@ -106,7 +106,7 @@ class ProjectService
         ?Users $currentUser = null,
         bool $myProjects = false,
         int $page = 1,
-        int $perPage = 50,
+        int $perPage = 10,
         string $sortField = 'name',
         string $direction = 'asc'
     ) {

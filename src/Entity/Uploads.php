@@ -2,66 +2,60 @@
 
 namespace App\Entity;
 
-use App\Repository\UploadsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: UploadsRepository::class)]
+#[ORM\Entity]
 class Uploads
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Firmwares::class)]
-    #[ORM\JoinColumn(name: "firmware_id", referencedColumnName: "id")]
-    private ?Firmwares $firmware_id = null;
+    #[ORM\Column(type: 'integer')]
+    private int $firmwareId;
 
-    #[ORM\ManyToOne(targetEntity: Users::class)]
-    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
-    private ?Users $user_id = null;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $uploadedAt;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $uploaded_at = null;
+    #[ORM\Column(type: 'integer')]
+    private int $userId;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getFirmwareId(): ?int
+    public function setFirmwareId(int $firmwareId): self
     {
-        return $this->firmware_id;
-    }
-
-    public function setFirmwareId(int $firmware_id): static
-    {
-        $this->firmware_id = $firmware_id;
-
+        $this->firmwareId = $firmwareId;
         return $this;
     }
 
-    public function getUserId(): ?int
+    public function getFirmwareId(): int
     {
-        return $this->user_id;
+        return $this->firmwareId;
     }
 
-    public function setUserId(int $user_id): static
+    public function setUploadedAt(\DateTimeImmutable $uploadedAt): self
     {
-        $this->user_id = $user_id;
-
+        $this->uploadedAt = $uploadedAt;
         return $this;
     }
 
-    public function getUploadedAt(): ?\DateTimeImmutable
+    public function getUploadedAt(): \DateTimeImmutable
     {
-        return $this->uploaded_at;
+        return $this->uploadedAt;
     }
 
-    public function setUploadedAt(\DateTimeImmutable $uploaded_at): static
+    public function setUserId(int $userId): self
     {
-        $this->uploaded_at = $uploaded_at;
-
+        $this->userId = $userId;
         return $this;
+    }
+
+    public function getUserId(): int
+    {
+        return $this->userId;
     }
 }

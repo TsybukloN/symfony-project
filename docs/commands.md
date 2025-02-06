@@ -26,6 +26,11 @@ Resume stoped containers
 docker compose up -d
 ```
 
+Run to stop and delete the Docker containers.
+```bash
+docker compose down --remove-orphans
+```
+
 ### Migrations
 
 Make migration
@@ -60,11 +65,14 @@ Load fixtures to database
 php bin/console doctrine:fixtures:load
 ```
 
-
 ### Testing
 
 Run tests
 
 ```bash
-vendor/bin/phpunit tests/Service/MyServiceTest.php
+vendor/bin/phpunit
+```
+
+```bash
+vendor/bin/behat
 ```

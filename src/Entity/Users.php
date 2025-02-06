@@ -88,6 +88,11 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function isAdmin(): bool
+    {
+        return in_array('ROLE_ADMIN', $this->roles);
+    }
+
     public function setUser(): static
     {
         $this->addRole('ROLE_USER');
