@@ -24,7 +24,8 @@ or
 - **Password**: `admin_password`
 
 ### To stop and delete the Docker containers
-+ Run `docker compose stop` to stop and delete the Docker containers.
++ Run `docker compose stop` to stop Docker containers.
++ Run `docker compose up -d` to resume stopped containers.
 + Run `docker compose down --remove-orphans` to stop and delete the Docker containers.
 
 ## Description and Features
