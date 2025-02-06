@@ -5,15 +5,11 @@
 1. [Install Docker](https://www.docker.com/)
 2. Clone the repository
 ```bash
-https://github.com/TsybukloN/symfony-project.git
+git clone https://github.com/TsybukloN/symfony-project.git
 cd symfony-project
 ```
 3. Run `docker compose build --no-cache` to build fresh images
 4. Run `docker compose up --pull always -d --wait` to set up and start a fresh Symfony project
-
-### To stop and delete the Docker containers
-+ Run `docker compose stop` to stop and delete the Docker containers.
-+ Run `docker compose down --remove-orphans` to stop and delete the Docker containers.
 
 5. Run `docker exec -it <container_id> php bin/console doctrine:fixtures:load` to upload to database default(test) data. (`docker ps` to see container_id used app-php image)
 6. Open `https://localhost`. **Better to use your web browser**. It allows you to see the complete design of the project.
@@ -26,6 +22,10 @@ or
 
 - **Login**: `admin@example.com`
 - **Password**: `admin_password`
+
+### To stop and delete the Docker containers
++ Run `docker compose stop` to stop and delete the Docker containers.
++ Run `docker compose down --remove-orphans` to stop and delete the Docker containers.
 
 ## Description and Features
 
